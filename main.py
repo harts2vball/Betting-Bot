@@ -1,6 +1,7 @@
 import re
 import sys
 from selenium import webdriver
+import selenium
 
 import csgoWildCoinFlip
 
@@ -59,8 +60,14 @@ bet = csgoWildCoinFlip.csgoWildCoinFlip()
 
 #opens site in chrome
 print('Opening %s' % bet.url)
+
+
 driver = webdriver.Chrome("chromedriver.exe")
 driver.get("http://" + bet.url)
+driver.set_window_size(1850, 950)
+
+#opens steam login
+driver.find_element_by_css_selector("""href title="Sign In"]""").click()
 
 input('\nSign in and press ENTER to continue: ')
 
