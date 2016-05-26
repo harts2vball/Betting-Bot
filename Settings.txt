@@ -1,0 +1,3 @@
+Initial Bet: 1
+Loss Multiplier: 2.25
+Maximum Bet: 150
