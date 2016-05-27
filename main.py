@@ -44,13 +44,13 @@ def getSettings():
     with open('Settings.txt', 'r') as f:
         for line in f:
             if "Initial Bet" in line:
-                list = re.findall('\d+', line)
+                list = re.findall('[-+]?\d*\.\d+|\d+', line)
                 initialBet = float(list[0])
             elif "Loss Multiplier" in line:
                 list = re.findall('[-+]?\d*\.\d+|\d+', line)
                 multiplier = float(list[0])
             elif "Maximum Bet" in line:
-                list = re.findall('\d+', line)
+                list = re.findall('[-+]?\d*\.\d+|\d+', line)
                 maxBet = int(list[0])
             elif "Username" in line:
                 userName = line[10:]
