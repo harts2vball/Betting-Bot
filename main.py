@@ -47,7 +47,7 @@ def getSettings():
                 list = re.findall('\d+', line)
                 initialBet = float(list[0])
             elif "Loss Multiplier" in line:
-                list = re.findall('\d+', line)
+                list = re.findall('[-+]?\d*\.\d+|\d+', line)
                 multiplier = float(list[0])
             elif "Maximum Bet" in line:
                 list = re.findall('\d+', line)
@@ -66,7 +66,7 @@ def getSettings():
     response = input('Are you sure of these settings? (y/n): ')
     if ( response[0] != 'y' and response[0] != 'Y'):
         print('EXITING...\n')
-        sys.exit
+        sys.exit();
 
 def gameWon( driver ):
     name = driver.find_element_by_id("winner-name").text
