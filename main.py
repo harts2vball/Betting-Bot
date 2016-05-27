@@ -4,6 +4,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import selenium.webdriver.support.ui as ui
+import contextlib
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
@@ -16,6 +20,10 @@ import csgoWildCoinFlip
 initialBet = 0
 multiplier = 0
 maxBet = 0
+
+#stats
+cumulativeGains = 0
+numBets = 1
 
 dummy_url = '/404error'
 
@@ -30,7 +38,7 @@ confirms them with the user.
 def getSettings():
 
     #define global vars to edit
-    global initialBet, multiplier, maxBet
+    global initialBet, multiplier, maxBet, userName
 
     #open file and read data
     with open('Settings.txt', 'r') as f:
@@ -44,17 +52,28 @@ def getSettings():
             elif "Maximum Bet" in line:
                 list = re.findall('\d+', line)
                 maxBet = int(list[0])
+            elif "Username" in line:
+                userName = line[10:]
+
     f.close()
 
     #confirms data
     print('Here are the current settings: \n')
     print('Initial Bet (float): %.2f' % initialBet)
     print('Loss Multiplier (float): %.2f' % multiplier)
-    print('Max Bet (int): %d\n' % maxBet)
+    print('Max Bet (int): %d' % maxBet)
+    print('Username (string): %s\n' % userName)
     response = input('Are you sure of these settings? (y/n): ')
     if ( response[0] != 'y' and response[0] != 'Y'):
         print('EXITING...\n')
         sys.exit
+
+def gameWon( driver ):
+    name = driver.find_element_by_id("winner-name").text
+    if( userName in name ):
+        return True
+    else:
+        return False
 
 
 #==============================================================================
@@ -65,16 +84,15 @@ def getSettings():
 getSettings()
 
 #instantiate betting website object
-bet = csgoWildCoinFlip.csgoWildCoinFlip()
+betPlatform = csgoWildCoinFlip.csgoWildCoinFlip()
 
 #opens site
-print('Opening %s' % bet.url)
+print('Opening %s' % betPlatform.url)
 
-profile = webdriver.FirefoxProfile(
-    r"""C:\Users\Charlay\AppData\Roaming\Mozilla\Firefox\Profiles\nz1v5nfx.Selenium""")
-driver = webdriver.Firefox(profile)
+driver = webdriver.Firefox()
 driver.maximize_window()
 
+""" LOAD COOKIES...BUGGY
 driver.get("http://" + bet.url + dummy_url)
 cookies = pickle.load(open("cookies.pkl", "rb"))
 for cookie in cookies:
@@ -90,16 +108,15 @@ for cookie in cookies:
     except Exception:
         print()
 
-driver.get("http://" + bet.url)
-
-
-#start betting
-input('\nSign in and press ENTER to continue: ')
-
 pickle.dump( driver.get_cookies() , open("cookies.pkl","wb"))
+"""
+
+driver.get("http://" + betPlatform.url)
+#start betting
+input('\nSign in and press ENTER to get rich: ')
 
 #initialize bet
-side = bet.chooseSide()
+side = betPlatform.chooseSide()
 bet = initialBet
 
 while True:
@@ -132,6 +149,27 @@ while True:
     textBox = driver.find_element_by_class_name("primary-button")
     textBox.click()
 
+    #wait for bet to take place
+    wait = ui.WebDriverWait(driver, 100000)
+    wait.until(lambda driver: driver.find_element_by_class_name('ingame-coin'))
 
-    break;
+    if( gameWon( driver ) ):
+        cumulativeGains += bet
+        print("Bet #%d: you won $%d!  |" % (numBets, bet))
+        print("  Cumulative gains: $%d!\n" % (cumulativeGains))
+        bet = initialBet
+        side = betPlatform.chooseSide()
+    else:
+        cumulativeGains -= bet
+        print("Bet #%d: you lost $%d!  |" % (numBets, bet))
+        print("  Cumulative gains: $%d!\n" % (cumulativeGains))
+        bet *= multiplier
+
+    driver.get("http://" + betPlatform.url)
+
+    #checks for max bet condition
+    if(bet > maxBet):
+        break;
+
+    driver.implicitly_wait(10)
 
