@@ -1,3 +1,4 @@
 Initial Bet: 1
-Loss Multiplier: 2.25
-Maximum Bet: 150
+Loss Multiplier: 2
+Maximum Bet: 255
+Username: PCBruh

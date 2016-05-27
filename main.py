@@ -155,15 +155,16 @@ while True:
 
     if( gameWon( driver ) ):
         cumulativeGains += bet
-        print("Bet #%d: you won $%d!  |" % (numBets, bet))
-        print("  Cumulative gains: $%d!\n" % (cumulativeGains))
+        print("Bet #%d: you won $%d! |  Cumulative gains: $%d!\n" %
+               (numBets, bet, cumulativeGains) )
         bet = initialBet
         side = betPlatform.chooseSide()
     else:
         cumulativeGains -= bet
-        print("Bet #%d: you lost $%d!  |" % (numBets, bet))
-        print("  Cumulative gains: $%d!\n" % (cumulativeGains))
+        print("Bet #%d: you lost $%d! |  Cumulative gains: $%d!\n" %
+              (numBets, bet, cumulativeGains ) )
         bet *= multiplier
+    numBets++;
 
     driver.get("http://" + betPlatform.url)
 
@@ -172,4 +173,3 @@ while True:
         break;
 
     driver.implicitly_wait(10)
-
