@@ -1,7 +1,14 @@
-import re
 import sys
+import pickle
 from selenium import webdriver
-import selenium
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoAlertPresentException
+import unittest, time, re
+
 
 import csgoWildCoinFlip
 
@@ -10,6 +17,7 @@ initialBet = 0
 multiplier = 0
 maxBet = 0
 
+dummy_url = '/404error'
 
 #==============================================================================
 #helper methods
@@ -48,6 +56,7 @@ def getSettings():
         print('EXITING...\n')
         sys.exit
 
+
 #==============================================================================
 #main code
 #==============================================================================
@@ -58,40 +67,71 @@ getSettings()
 #instantiate betting website object
 bet = csgoWildCoinFlip.csgoWildCoinFlip()
 
-#opens site in chrome
+#opens site
 print('Opening %s' % bet.url)
 
+profile = webdriver.FirefoxProfile(
+    r"""C:\Users\Charlay\AppData\Roaming\Mozilla\Firefox\Profiles\nz1v5nfx.Selenium""")
+driver = webdriver.Firefox(profile)
+driver.maximize_window()
 
-driver = webdriver.Chrome("chromedriver.exe")
+driver.get("http://" + bet.url + dummy_url)
+cookies = pickle.load(open("cookies.pkl", "rb"))
+for cookie in cookies:
+    try:
+        driver.add_cookie(cookie)
+    except Exception:
+        print()
+
+driver.get("https://steamcommunity.com/" + dummy_url)
+for cookie in cookies:
+    try:
+        driver.add_cookie(cookie)
+    except Exception:
+        print()
+
 driver.get("http://" + bet.url)
-driver.set_window_size(1850, 950)
 
-#opens steam login
-driver.find_element_by_css_selector("""href title="Sign In"]""").click()
 
+#start betting
 input('\nSign in and press ENTER to continue: ')
 
-#betting script
-#while(true):
+pickle.dump( driver.get_cookies() , open("cookies.pkl","wb"))
 
+#initialize bet
 side = bet.chooseSide()
 bet = initialBet
 
+while True:
+
+#1. ALWAYS STARTS ON MAIN COIN FLIP PAGE
+
+    #clicks on create game
+    driver.find_element_by_xpath("""//*[@id="create-game-action"]""").click()
+
+    #clicks on either t or ct based on side
+    if(side == 0):
+        driver.find_element_by_xpath("""// *[ @ id = "terrorist-popup"]
+        """).click()
+    else:
+        driver.find_element_by_xpath("""// *[ @ id = "counterterrorist-popup"]
+        """).click()
+
+    #bet the proper amount
+    action = ActionChains(driver)
+    driver.implicitly_wait(100)
+    textBox = driver.find_element_by_class_name("wager-input")
+    textBox.click()
+    textBox.send_keys(Keys.BACK_SPACE)
+    textBox.send_keys(Keys.BACK_SPACE)
+    textBox.send_keys(Keys.BACK_SPACE)
+    textBox.send_keys(Keys.BACK_SPACE)
+    textBox.send_keys(Keys.BACK_SPACE)
+    textBox.send_keys(Keys.BACK_SPACE)
+    textBox.send_keys(str(bet))
+    textBox = driver.find_element_by_class_name("primary-button")
+    textBox.click()
 
 
-#clicks on create game
-driver.find_element_by_xpath("""//*[@id="create-game-action"]""").click()
-
-#clicks on either t or ct based on side
-if(side == 0):
-    driver.find_element_by_xpath("""// *[ @ id = "terrorist-popup"]
-    """).click()
-else:
-    driver.find_element_by_xpath("""// *[ @ id = "counterterrorist-popup"]
-    """).click()
-
-#bet the proper amount
-box = driver.find_element_by_class_name("""wager-input ember-view ember-text-field""")
-box.clear()
-
+    break;
 
