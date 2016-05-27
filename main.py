@@ -164,7 +164,7 @@ while True:
         print("Bet #%d: you lost $%d! |  Cumulative gains: $%d!\n" %
               (numBets, bet, cumulativeGains ) )
         bet *= multiplier
-    numBets++;
+    numBets += 1
 
     driver.get("http://" + betPlatform.url)
 
