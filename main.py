@@ -92,25 +92,6 @@ print('Opening %s' % betPlatform.url)
 driver = webdriver.Firefox()
 driver.maximize_window()
 
-""" LOAD COOKIES...BUGGY
-driver.get("http://" + bet.url + dummy_url)
-cookies = pickle.load(open("cookies.pkl", "rb"))
-for cookie in cookies:
-    try:
-        driver.add_cookie(cookie)
-    except Exception:
-        print()
-
-driver.get("https://steamcommunity.com/" + dummy_url)
-for cookie in cookies:
-    try:
-        driver.add_cookie(cookie)
-    except Exception:
-        print()
-
-pickle.dump( driver.get_cookies() , open("cookies.pkl","wb"))
-"""
-
 driver.get("http://" + betPlatform.url)
 #start betting
 input('\nSign in and press ENTER to get rich: ')
